@@ -53,13 +53,13 @@ export class WebhooksController {
     }
 
     // ── 2. Get raw body — required by svix for signature verification ──
-    // @fastify/rawbody populates req.rawBody (Buffer | string)
+    // NestJS rawBody:true option populates req.rawBody (Buffer)
     const rawBody = (req as FastifyRequest & { rawBody?: Buffer | string }).rawBody
 
     if (!rawBody) {
       this.logger.error(
         'Webhook rejected: rawBody is undefined. ' +
-        'Ensure @fastify/rawbody is registered in main.ts.',
+        'Ensure NestFactory.create() is called with { rawBody: true } in main.ts.',
       )
       throw new InternalServerErrorException('Raw body unavailable')
     }

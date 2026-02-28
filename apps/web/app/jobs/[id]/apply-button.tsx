@@ -34,7 +34,7 @@ export function ApplyButton({ jobId, className }: ApplyButtonProps) {
       return
     }
 
-    router.push(`/interview?jobId=${jobId}`)
+    router.push(`/interview/${jobId}`)
   }
 
   const disabled = !isLoaded || loading

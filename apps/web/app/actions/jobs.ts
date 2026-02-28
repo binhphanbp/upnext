@@ -80,15 +80,22 @@ export async function createJob(
 
   const payload: Partial<DbJobInsert> = {
     title,
-    description,
+    description: description || undefined,
     companyName,
-    location,
-    locationMode,
-    level,
-    jobType,
+    location: location || undefined,
+    locationMode: locationMode ?? undefined,
+    level: level ?? undefined,
+    jobType: jobType ?? undefined,
     tags,
     salaryRange:
-      salaryMin || salaryMax ? { min: salaryMin, max: salaryMax } : null,
+      salaryMin != null || salaryMax != null
+        ? {
+            min: salaryMin ?? 0,
+            max: salaryMax ?? 0,
+            currency: 'USD',
+            period: 'year' as const,
+          }
+        : undefined,
   }
 
   try {

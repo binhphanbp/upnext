@@ -6,7 +6,6 @@ import {
 } from '@nestjs/platform-fastify'
 import { ValidationPipe, Logger } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import fastifyRawBody from '@fastify/rawbody'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
@@ -15,22 +14,15 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: false }),
+    /**
+     * rawBody: true — NestJS 10.3+ built-in raw body buffering.
+     *
+     * Stores the raw request body as `req.rawBody` (Buffer), which is
+     * required by svix to verify Clerk webhook HMAC signatures.
+     * This replaces the need for any external rawbody plugin.
+     */
+    { rawBody: true },
   )
-
-  /**
-   * Register @fastify/rawbody BEFORE any routes are set up.
-   *
-   * This plugin captures the raw request body as `req.rawBody` (Buffer),
-   * which is required by svix to verify Clerk webhook signatures.
-   * Without the raw body, HMAC verification will fail even for legitimate events.
-   */
-  await app.register(fastifyRawBody, {
-    field: 'rawBody',
-    global: false,        // Only parse for routes that opt-in
-    encoding: false,      // Keep as Buffer (svix handles encoding)
-    runFirst: true,       // Run before other body parsers
-    routes: ['/api/v1/webhooks/clerk'],
-  })
 
   // Global prefix for API versioning
   app.setGlobalPrefix('api/v1')
