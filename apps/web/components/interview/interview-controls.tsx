@@ -7,7 +7,7 @@
  */
 'use client'
 
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Mic,
@@ -17,6 +17,7 @@ import {
   SendHorizonal,
   PhoneOff,
   Loader2,
+  AudioWaveform,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { InterviewPhase } from '@/store/interview-store'
@@ -27,9 +28,18 @@ interface InterviewControlsProps {
   isVideoActive: boolean
   onToggleAudio: () => void
   onToggleVideo: () => void
-  /** Called with the typed/spoken answer text */
+  /** Controlled answer text (owned by parent so STT can pre-fill) */
+  answer: string
+  onAnswerChange: (v: string) => void
+  /** Called with the finalised answer text */
   onSubmitAnswer: (answer: string) => void
   onEndInterview: () => void
+  /** STT voice input */
+  isVoiceListening?: boolean
+  isVoiceSupported?: boolean
+  onToggleVoice?: () => void
+  /** Real-time interim transcript while voice is analysing */
+  voiceInterim?: string
 }
 
 export function InterviewControls({
@@ -38,21 +48,24 @@ export function InterviewControls({
   isVideoActive,
   onToggleAudio,
   onToggleVideo,
+  answer,
+  onAnswerChange,
   onSubmitAnswer,
   onEndInterview,
+  isVoiceListening = false,
+  isVoiceSupported = false,
+  onToggleVoice,
+  voiceInterim = '',
 }: InterviewControlsProps) {
-  const [answer, setAnswer] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const canAnswer = phase === 'user_answering'
   const isProcessing = phase === 'processing'
-  const isAiSpeaking = phase === 'ai_speaking'
 
   function handleSubmit() {
     const text = answer.trim()
     if (!text || !canAnswer) return
     onSubmitAnswer(text)
-    setAnswer('')
     if (textareaRef.current) textareaRef.current.style.height = 'auto'
   }
 
@@ -65,7 +78,7 @@ export function InterviewControls({
 
   /* Auto-grow textarea */
   function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setAnswer(e.target.value)
+    onAnswerChange(e.target.value)
     const el = e.target
     el.style.height = 'auto'
     el.style.height = `${Math.min(el.scrollHeight, 160)}px`
@@ -85,43 +98,75 @@ export function InterviewControls({
           >
             <textarea
               ref={textareaRef}
-              value={answer}
+              value={answer + (isVoiceListening && voiceInterim ? ` ${voiceInterim}` : '')}
               onChange={handleInput}
               onKeyDown={handleKeyDown}
               disabled={!canAnswer}
-              placeholder="Type your answer here… (Ctrl + Enter to submit)"
+              placeholder={
+                isVoiceListening
+                  ? 'Listening… speak your answer'
+                  : 'Type your answer here… (Ctrl + Enter to submit)'
+              }
               rows={3}
               className={cn(
-                'w-full resize-none rounded-xl border bg-zinc-900/80 px-4 py-3 pr-14',
+                'w-full resize-none rounded-xl border bg-zinc-900/80 px-4 py-3 pr-20',
                 'text-sm text-zinc-200 placeholder-zinc-600 outline-none',
                 'transition focus:ring-1',
-                canAnswer
-                  ? 'border-zinc-700 focus:border-primary-500/50 focus:ring-primary-500/30'
-                  : 'border-zinc-800 opacity-50',
+                isVoiceListening
+                  ? 'border-blue-500/50 ring-1 ring-blue-500/20'
+                  : canAnswer
+                    ? 'border-zinc-700 focus:border-primary-500/50 focus:ring-primary-500/30'
+                    : 'border-zinc-800 opacity-50',
               )}
             />
-            {canAnswer && (
-              <button
-                onClick={handleSubmit}
-                disabled={!answer.trim()}
-                className={cn(
-                  'absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg',
-                  'transition',
-                  answer.trim()
-                    ? 'bg-primary-500 text-white hover:bg-primary-400'
-                    : 'bg-zinc-800 text-zinc-600',
-                )}
-                title="Submit answer (Ctrl+Enter)"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <SendHorizonal className="h-4 w-4" />
-                )}
-              </button>
-            )}
+            <div className="absolute right-2 top-2 flex gap-1">
+              {isVoiceSupported && !!onToggleVoice && (
+                <button
+                  onClick={onToggleVoice}
+                  disabled={!canAnswer}
+                  title={isVoiceListening ? 'Stop voice input' : 'Start voice input (STT)'}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-lg transition',
+                    isVoiceListening
+                      ? 'bg-blue-500 text-white shadow-[0_0_10px_rgba(59,130,246,0.4)] hover:bg-blue-400'
+                      : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200',
+                    !canAnswer && 'cursor-not-allowed opacity-40',
+                  )}
+                >
+                  {isVoiceListening ? (
+                    <motion.span
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <AudioWaveform className="h-4 w-4" />
+                    </motion.span>
+                  ) : (
+                    <AudioWaveform className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+              {canAnswer && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!answer.trim()}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-lg transition',
+                    answer.trim()
+                      ? 'bg-primary-500 text-white hover:bg-primary-400'
+                      : 'bg-zinc-800 text-zinc-600',
+                  )}
+                  title="Submit answer (Ctrl+Enter)"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <SendHorizonal className="h-4 w-4" />
+                  )}
+                </button>
+              )}
+            </div>
             <p className="mt-1 text-right text-xs text-zinc-600">
-              Ctrl + Enter to submit
+              {isVoiceListening ? 'Voice active — click stop to finalise' : 'Ctrl + Enter to submit'}
             </p>
           </motion.div>
         )}

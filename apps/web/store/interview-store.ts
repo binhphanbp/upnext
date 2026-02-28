@@ -35,6 +35,8 @@ export interface InterviewState {
   jobTitle: string | null
   companyName: string | null
   jobDescription: string | null
+  /** Server-side interview record ID (created on session start) */
+  interviewId: string | null
 
   /* Conversation */
   messages: InterviewMessage[]
@@ -50,6 +52,7 @@ export interface InterviewState {
 
   /* Actions */
   initSession: (jobId: string, jobTitle: string, companyName: string, jd: string) => void
+  setInterviewId: (id: string) => void
   addMessage: (role: MessageRole, content: string) => void
   setStreamingQuestion: (text: string) => void
   appendStreamingQuestion: (chunk: string) => void
@@ -78,6 +81,7 @@ const initialState = {
   jobTitle: null,
   companyName: null,
   jobDescription: null,
+  interviewId: null,
   messages: [] as InterviewMessage[],
   streamingQuestion: '',
   phase: 'idle' as InterviewPhase,
@@ -97,6 +101,7 @@ export const useInterviewStore = create<InterviewState>()(
             jobTitle,
             companyName,
             jobDescription: jd,
+            interviewId: null,
             messages: [],
             streamingQuestion: '',
             phase: 'connecting',
@@ -104,6 +109,9 @@ export const useInterviewStore = create<InterviewState>()(
           false,
           'initSession',
         ),
+
+      setInterviewId: (id) =>
+        set({ interviewId: id }, false, 'setInterviewId'),
 
       addMessage: (role, content) =>
         set(

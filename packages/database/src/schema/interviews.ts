@@ -42,12 +42,21 @@ export type AiFeedbackItem = {
 /**
  * AiFeedback — Full AI evaluation stored as JSONB.
  * Allows rich, structured data without schema migrations for new feedback fields.
+ *
+ * Radar chart axes: communication, technical, behavioral, problemSolving, domainExpertise
  */
 export type AiFeedback = {
   overallSummary: string
+  // Five radar axes (0–100 each)
   communicationScore: number
   technicalScore: number
   behavioralScore: number
+  problemSolvingScore: number
+  domainExpertiseScore: number
+  // Narrative feedback
+  strengths: string[]
+  weaknesses: string[]
+  improvements: string[]
   items: AiFeedbackItem[]
   recommendation: 'strong_hire' | 'hire' | 'no_hire' | 'strong_no_hire'
 }

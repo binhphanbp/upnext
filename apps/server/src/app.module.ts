@@ -5,6 +5,7 @@ import { AppService } from './app.service'
 import { DatabaseModule } from './database/database.module'
 import { WebhooksModule } from './webhooks/webhooks.module'
 import { JobsModule } from './jobs/jobs.module'
+import { InterviewsModule } from './interviews/interviews.module'
 
 /**
  * AppModule — Root module of the UpNext NestJS application.
@@ -30,6 +31,7 @@ import { JobsModule } from './jobs/jobs.module'
 
     // Feature modules
     JobsModule,
+    InterviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
