@@ -1,49 +1,108 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import {
+  HeroSection,
+  FeaturesSection,
+  StatsSection,
+  CtaSection,
+} from '@/components/landing-page'
+
+/* ------------------------------------------------------------------ */
+/* Metadata — optimised for Lighthouse SEO + social sharing            */
+/* ------------------------------------------------------------------ */
+
+const pageTitle = 'UpNext — AI Interview Practice & Job Portal for Engineers'
+const pageDescription =
+  'Practice realistic AI-powered mock interviews, get instant scored feedback, and discover curated engineering roles. Join 12,000+ engineers who landed their dream job with UpNext.'
 
 export const metadata: Metadata = {
-  title: 'Home',
-  description:
-    'AI-powered interview practice and job portal. Land your next role faster with real-world mock interviews.',
+  title: pageTitle,
+  description: pageDescription,
+  keywords: [
+    'AI mock interview',
+    'software engineer interview prep',
+    'coding interview practice',
+    'tech job portal',
+    'AI interview feedback',
+    'system design interview',
+    'behavioral interview practice',
+    'software engineering jobs',
+  ],
   alternates: {
     canonical: '/',
   },
+  openGraph: {
+    type: 'website',
+    url: '/',
+    title: pageTitle,
+    description: pageDescription,
+    images: [
+      {
+        url: '/og-home.png',
+        width: 1200,
+        height: 630,
+        alt: 'UpNext — AI Interview Practice & Job Portal',
+        type: 'image/png',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: pageTitle,
+    description: pageDescription,
+    images: ['/og-home.png'],
+  },
 }
 
+/* ------------------------------------------------------------------ */
+/* JSON-LD — WebSite + SearchAction (enables sitelinks search box)      */
+/* ------------------------------------------------------------------ */
+
+function HomeJsonLd() {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://upnext.app'
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'UpNext',
+    url: siteUrl,
+    description: pageDescription,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${siteUrl}/jobs?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* Page                                                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * HomePage — Server Component.
+ *
+ * Composes independent section components. Interactive sections
+ * (FeaturesSection, StatsSection) declare 'use client' internally —
+ * this page itself stays a pure RSC for maximum initial load performance.
+ */
 export default function HomePage() {
   return (
-    <section className="container-page flex flex-col items-center justify-center py-32 text-center">
-      <div className="inline-flex items-center gap-2 rounded-full border border-primary-500/30 bg-primary-500/10 px-4 py-1.5 text-xs font-medium text-primary-400">
-        <span className="h-1.5 w-1.5 rounded-full bg-primary-500" />
-        Now in public beta
-      </div>
-
-      <h1 className="mt-6 text-4xl font-bold tracking-tight text-zinc-50 sm:text-6xl lg:text-7xl">
-        Land your{' '}
-        <span className="text-gradient-primary">dream job</span>
-        <br />
-        with AI coaching
-      </h1>
-
-      <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-400">
-        Practice with AI-powered mock interviews, get instant feedback, and
-        discover top engineering roles — all in one place.
-      </p>
-
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-        <Link
-          href="/sign-up"
-          className="rounded-lg bg-primary-500 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-primary-600 active:scale-95"
-        >
-          Get started for free
-        </Link>
-        <Link
-          href="/jobs"
-          className="rounded-lg border border-zinc-700 px-6 py-3 text-sm font-semibold text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-50"
-        >
-          Browse jobs
-        </Link>
-      </div>
-    </section>
+    <>
+      <HomeJsonLd />
+      <HeroSection />
+      <StatsSection />
+      <FeaturesSection />
+      <CtaSection />
+    </>
   )
 }
