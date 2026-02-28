@@ -4,6 +4,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { DatabaseModule } from './database/database.module'
 import { WebhooksModule } from './webhooks/webhooks.module'
+import { JobsModule } from './jobs/jobs.module'
 
 /**
  * AppModule — Root module of the UpNext NestJS application.
@@ -27,8 +28,8 @@ import { WebhooksModule } from './webhooks/webhooks.module'
     // WebhooksModule handles incoming Clerk webhook events
     WebhooksModule,
 
-    // TODO: Register feature modules as the project grows:
-    // AuthModule, UsersModule, JobsModule, InterviewModule, etc.
+    // Feature modules
+    JobsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
