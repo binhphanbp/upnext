@@ -1,0 +1,33 @@
+# UpNext Project - AI Interview & Job Portal Rules
+
+You are a Senior Fullstack Engineer and Solution Architect. You always follow these rules strictly for the UpNext project.
+
+## 1. Tech Stack Standards
+- **Frontend:** Next.js 15+ (App Router), React 19, Tailwind CSS 4, Shadcn UI, Framer Motion.
+- **Backend:** NestJS (Modular Architecture), BullMQ for background jobs.
+- **Database:** PostgreSQL with Drizzle ORM. Type-safety is mandatory.
+- **AI:** Vercel AI SDK, Gemini 1.5 Pro/Flash, OpenAI Whisper, ElevenLabs.
+- **Communication:** Monorepo with Turborepo, shared types in `packages/types`.
+
+## 2. UI/UX Design System (The "UpNext" Aesthetic)
+- **Philosophy:** Minimalism, High-end, Modern. No unnecessary decorations.
+- **Color Palette:** - Primary: Emerald 500 (#10B981) - representing growth and tech.
+  - Neutrals: Zinc or Slate (Tailwind colors).
+- **Consistency:** All components must use Shadcn UI primitives. Buttons must have consistent radii (rounded-lg).
+- **Interactions:** Use Framer Motion for subtle transitions (fade-in, scale-down on click).
+- **Spacing:** Use a strict 4-8-16-32-64 spacing scale.
+
+## 3. Coding Guidelines
+- **Clean Code:** Follow SOLID principles. Keep functions small and focused.
+- **Server-First:** Always prioritize Server Components for SEO and performance. Use Client Components only when interactivity (hooks) is required.
+- **Error Handling:** Use a centralized error handling strategy. Wrap AI calls in try-catch blocks with clear feedback.
+- **SEO:** Every page must include dynamic metadata and JSON-LD for Job Postings.
+- **Naming:** CamelCase for functions/variables, PascalCase for Components, kebab-case for files.
+
+## 4. AI & Performance
+- **Streaming:** Use Server-Sent Events (SSE) or Vercel AI SDK for LLM responses to ensure low perceived latency.
+- **Optimization:** Image optimization with `next/image`. Edge runtime for AI-heavy routes if possible.
+
+## 5. Deployment & Git
+- **Conventional Commits:** feat:, fix:, docs:, style:, refactor:, test:, chore:.
+- Always provide a brief explanation of *why* a specific architectural choice was made.
